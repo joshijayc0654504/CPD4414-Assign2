@@ -54,7 +54,7 @@ public class OrderQueueTest {
     }
 
     @Test
-    public void testWhenCustomerExistsAndPurchasesExistThenTimeReceivedIsNow() {
+    public void testWhenCustomerExistsAndPurchasesExistThenTimeReceivedIsNow() throws Exception {
         OrderQueue orderQueue = new OrderQueue();
         Order order = new Order("CUST00001", "ABC Cafeteria");
         order.addPurchase(new Purchase("PROD0004", 450));
@@ -64,6 +64,27 @@ public class OrderQueueTest {
         long expResult = new Date().getTime();
         long result = order.getTimeReceived().getTime();
         assertTrue(Math.abs(result - expResult) < 1000);
+    }
+    
+    /**
+     *
+     * @throws cpd4414.assign2.OrderQueue.NoPurchasesException
+     */
+    @Test
+    public void testWhenNoCustomerExistsThenThrowAnException() throws Exception {
+        boolean didThrow = false;
+        OrderQueue orderQueue = new OrderQueue();
+        Order order = new Order("", "");
+        order.addPurchase(new Purchase("PROD0004", 450));
+        order.addPurchase(new Purchase("PROD0006", 250));
+        orderQueue.add(order);
+        try {
+            orderQueue.add(order);
+        } catch (Exception ex) {
+            didThrow = true;
+        }
+
+        assertTrue(didThrow);
     }
     
 }
