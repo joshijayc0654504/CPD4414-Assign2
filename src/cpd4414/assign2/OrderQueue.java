@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Queue;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 /**
  *
@@ -31,7 +33,7 @@ public class OrderQueue {
     Queue<Order> orderQueue = new ArrayDeque<>();
     List<Order> orderList = new ArrayList<>();
     
-    public void add(Order order)throws NoCustomerException, NoPurchasesException {
+    public void add(Order order) throws NoCustomerException, NoPurchasesException {
         if (order.getCustomerId().isEmpty() && order.getCustomerName().isEmpty()) {
             throw new NoCustomerException();
         }
@@ -70,6 +72,23 @@ public class OrderQueue {
         
     }
 
+    String report() {
+        String output = "";
+        if (!(orderQueue.isEmpty() && orderList.isEmpty())) {
+            JSONObject obj = new JSONObject();
+            JSONArray orders = new JSONArray();
+            for (Order o : orderList) {
+                orders.add(o.toJSON());
+            }
+            for (Order o : orderQueue) {
+                orders.add(o.toJSON());
+            }
+            obj.put("orders", orders);
+            output = obj.toJSONString();
+        }
+        return output;
+    }
+
     public class NoTimeProcessedException extends Exception {
 
         public NoTimeProcessedException() {
@@ -80,7 +99,7 @@ public class OrderQueue {
     public class NoTimeReceivedException extends Exception {
 
         public NoTimeReceivedException() {
-            super("No Time received");
+            super("No Time Received on this Order");
         }
     }
 
