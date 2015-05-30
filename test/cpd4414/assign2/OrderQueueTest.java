@@ -66,12 +66,9 @@ public class OrderQueueTest {
         assertTrue(Math.abs(result - expResult) < 1000);
     }
     
-    /**
-     *
-     * @throws cpd4414.assign2.OrderQueue.NoPurchasesException
-     */
+    
     @Test
-    public void testWhenNoCustomerExistsThenThrowAnException() throws Exception {
+    public void testWhenNoCustomerExistsThenThrowAnException() throws OrderQueue.NoCustomerException, OrderQueue.NoPurchasesException {
         boolean didThrow = false;
         OrderQueue orderQueue = new OrderQueue();
         Order order = new Order("", "");
@@ -80,7 +77,21 @@ public class OrderQueueTest {
         orderQueue.add(order);
         try {
             orderQueue.add(order);
-        } catch (Exception ex) {
+        } catch (OrderQueue.NoCustomerException ex) {
+            didThrow = true;
+        }
+
+        assertTrue(didThrow);
+    }
+    
+    @Test
+    public void testWhenNoPurchasesThenThrowAnException() throws OrderQueue.NoCustomerException {
+        boolean didThrow = false;
+        OrderQueue orderQueue = new OrderQueue();
+        Order order = new Order("SomeNormal", "Order");
+        try {
+            orderQueue.add(order);
+        } catch (OrderQueue.NoPurchasesException ex) {
             didThrow = true;
         }
 
