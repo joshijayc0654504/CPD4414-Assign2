@@ -122,7 +122,7 @@ public class OrderQueueTest {
     }
     
     @Test
-    public void testProcessWhenTimeReceivedIsSetThenSetTimeProcessedToNow() throws OrderQueue.NoCustomerException, OrderQueue.NoPurchasesException {
+    public void testProcessWhenTimeReceivedIsSetThenSetTimeProcessedToNow() throws OrderQueue.NoCustomerException, OrderQueue.NoPurchasesException, OrderQueue.NoTimeReceivedException {
         OrderQueue orderQueue = new OrderQueue();
         Order order = new Order("SomeValues", "OtherValues");
         order.addPurchase(new Purchase(1, 8));
@@ -154,6 +154,43 @@ public class OrderQueueTest {
 
         assertTrue(didThrow);
     }
+    
+    @Test
+    public void testFulfillWhenTimeReceivedIsSetAndTimeProcessedIsSetAndItemsInStockThenSetTimeFulfilledToNow() throws OrderQueue.NoCustomerException, OrderQueue.NoPurchasesException, OrderQueue.NoTimeReceivedException, OrderQueue.NoTimeProcessedException {
+        OrderQueue orderQueue = new OrderQueue();
+        Order order = new Order("SomeValues", "OtherValues");
+        order.addPurchase(new Purchase(1, 8));
+        orderQueue.add(order);
+        Order order2 = new Order("SomeValues", "OtherValues");
+        order2.addPurchase(new Purchase(2, 4));
+        orderQueue.add(order2);
 
+        Order next = orderQueue.next();
+        orderQueue.process(next);
 
+        orderQueue.fulfill(next);
+
+        long expResult = new Date().getTime();
+        long result = next.getTimeFulfilled().getTime();
+        assertTrue(Math.abs(result - expResult) < 1000);
+    }
+    
+
+    @Test
+    public void testFulfillWhenTimeProcessedNotSetThenThrowException() throws OrderQueue.NoCustomerException, OrderQueue.NoPurchasesException, OrderQueue.NoTimeReceivedException, OrderQueue.NoTimeProcessedException {
+        boolean didThrow = false;
+        OrderQueue orderQueue = new OrderQueue();
+        Order order = new Order("SomeValues", "OtherValues");
+        order.addPurchase(new Purchase(1, 8));
+        orderQueue.add(order);
+
+        try {
+            orderQueue.fulfill(order);
+        } catch (OrderQueue.NoTimeProcessedException ex) {
+            didThrow = true;
+        }
+
+        assertTrue(didThrow);
+    }
+  
 }
